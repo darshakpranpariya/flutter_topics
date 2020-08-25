@@ -1,22 +1,28 @@
+
 import 'dart:math';
 import 'package:event_bus/event_bus.dart';
+import 'package:eventbus_implimentation/theme_data.dart';
+import 'package:eventbus_implimentation/theme_notifire.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+        create: (context) => ThemeNotifire(lightTheme), child: MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final themeData = Provider.of<ThemeNotifire>(context);
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter EventBus Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        brightness: Brightness.dark,
-      ),
+      theme: themeData.getTheme(),
       home: MyHomePage(title: 'EventBus Flutter'),
     );
   }
@@ -32,10 +38,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  @override
-  void dispose() {
-    subject.close();
-  }
+
+
   //One event bus can handle all types of different different event...
   //this is default way to make instance of eventbus...
   // EventBus eventBus = EventBus();
@@ -43,7 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
   //This is custome type to make instance of eventbus...
   EventBus eventBus = EventBus.customController(ReplaySubject());
 
-  final subject = ReplaySubject<UserLoggedInEvent>();
+  bool val = false;
+  // final subject = ReplaySubject<UserLoggedInEvent>();
 
   void _addUser() {
     List<String> _name = [
@@ -78,9 +83,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var notIns = Provider.of<ThemeNotifire>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          CupertinoSwitch(
+              value: val,
+              onChanged: (value) {
+                setState(() {
+                  val = value;
+                  if(val==true){
+                    notIns.setTheme(darkTheme);
+                  }
+                  else{
+                    notIns.setTheme(lightTheme);
+                  }
+                });
+              },
+            ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -118,8 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   focusColor: Colors.teal,
                   title: Center(
                       child: Text(
-                    "UserName Stream:\n"+
-                    snapshot.data.user.n.toString(),
+                    "UserName Stream:\n" + snapshot.data.user.n.toString(),
                     style:
                         TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
                   )),
@@ -138,8 +159,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   focusColor: Colors.teal,
                   title: Center(
                       child: Text(
-                    "OrderItem Stream:\n"+
-                    snapshot.data.order.thingsName.toString(),
+                    "OrderItem Stream:\n" +
+                        snapshot.data.order.thingsName.toString(),
                     style:
                         TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
                   )),
