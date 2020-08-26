@@ -1,4 +1,4 @@
-# eventbus_implimentation
+# eventbus_implimentation with dynamic theme change
 
 A new Flutter project.
 
